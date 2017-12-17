@@ -37,7 +37,7 @@ __version__ = '0.01'
 
 
 setup(
-    name='apesmit',
+    name='apesmit-python2',
     version=__version__,
     packages=find_packages(),
     include_package_data=True,

@@ -1,3 +1,14 @@
+############
+THIS IS A FORK....
+
+Notes:
+# Apesmit was originally written by Florian Diesch at https://www.florian-diesch.de/software/apesmit/
+# It was then forked to remove the Python3-only flag since it works with Python 2, ie https://pypi.org/project/apesmit-py2/
+# I then had to fork to change the PyPi link to https, due to https://mail.python.org/pipermail/distutils-sig/2017-October/031714.html
+
+############
+
+
 .. -*- coding: utf-8 -*-
 
 What is ApeSmit?
