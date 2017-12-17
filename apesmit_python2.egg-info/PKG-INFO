@@ -1,13 +1,24 @@
 Metadata-Version: 1.1
-Name: apesmit
-Version: 0.01
+Name: apesmit-python2
+Version: 0.1
 Summary: simple Python module to create XML sitemaps
 Home-page: http://www.florian-diesch.de/software/apesmit/
 Author: Florian Diesch
 Author-email: devel@florian-diesch.de
 License: GPLv2
 Download-URL: http://www.florian-diesch.de/software/apesmit/
-Description: .. -*- coding: utf-8 -*-
+Description: ############
+        THIS IS A FORK....
+        
+        Notes:
+        # Apesmit was originally written by Florian Diesch at https://www.florian-diesch.de/software/apesmit/
+        # It was then forked to remove the Python3-only flag since it works with Python 2, ie https://pypi.org/project/apesmit-py2/
+        # I then had to fork to change the PyPi link to https, due to https://mail.python.org/pipermail/distutils-sig/2017-October/031714.html
+        
+        ############
+        
+        
+        .. -*- coding: utf-8 -*-
         
         What is ApeSmit?
         ================
