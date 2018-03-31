@@ -33,7 +33,7 @@ from setuptools import setup, find_packages
 
 
 require_python(0x20600f0)
-__version__ = '0.01'
+__version__ = '0.02'
 
 
 setup(
@@ -41,13 +41,13 @@ setup(
     version=__version__,
     packages=find_packages(),
     include_package_data=True,
-    maintainer='Florian Diesch',
-    maintainer_email='devel@florian-diesch.de',
-    author = "Florian Diesch",
-    author_email = "devel@florian-diesch.de",    
+    maintainer='Michael Cho',
+    maintainer_email='michael.cho@mail.com',
+    author="Florian Diesch",
+    author_email="devel@florian-diesch.de",
     description='simple Python module to create XML sitemaps',
     long_description=long_description(
-        'README.txt',
+        'README.md',
         ),
     license='GPLv2',
     url='http://www.florian-diesch.de/software/apesmit/',

@@ -30,23 +30,43 @@ class Url(object):
     """
     Class to handle a URL in `Sitemap`
     """
-    def __init__(self, loc, lastmod, changefreq, priority, escape=True):
+    def __init__(self, loc, lastmod, changefreq, priority, images, escape=True):
         """
         Constructor
 
         :Parameters:
           loc : string
             Location (URL). See http://www.sitemaps.org/protocol.php#locdef
+
           lastmod : ``datetime.date`` or ``string``
             Date of last modification.
             See http://www.sitemaps.org/protocol.php#lastmoddef
             The ``today`` is replaced by today's date
+
           changefreq : One of the values in `FREQ`
             Expected frequency for changes.
             See http://www.sitemaps.org/protocol.php#changefreqdef
+
           priority : ``float`` or ``string``
             Priority of this URL relative to other URLs on your site.
             See http://www.sitemaps.org/protocol.php#prioritydef
+
+          images: list of dicts, eg
+            [
+                {
+                    'loc': 'http://example.com/image.jpg',      # REQUIRED
+                    'caption': 'Some caption',                  # optional
+                    'geo_location': 'London, UK',               # optional
+                    'title': 'Some title',                      # optional
+                    'license': 'https://example.com/license'    # optional
+                },
+                {
+                 ...
+                }
+            ]
+
+            Ref: https://support.google.com/webmasters/answer/178636?hl=en
+
           escape
             True if escaping for XML special characters should be done.
             See http://www.sitemaps.org/protocol.php#escaping        
@@ -55,23 +75,24 @@ class Url(object):
             self.loc=self.escape(loc)
         else:
             self.loc=loc
-        if lastmod=='today':
-            lastmod=datetime.date.today().isoformat()
+
+        self.lastmod = None
+        if lastmod == 'today':
+            lastmod = datetime.date.today().isoformat()
         if lastmod is not None:
-            self.lastmod=unicode(lastmod)
-        else:
-            self.lastmod=None
+            self.lastmod = unicode(lastmod)
+
+        self.changefreq = None
         if changefreq not in FREQ:
             raise ValueError("Invalid changefreq value: '%s'"%changefreq)
         if changefreq is not None:
             self.changefreq=unicode(changefreq)
-        else:
-            self.changefreq=None
+
+        self.priority = None
         if priority is not None:
             self.priority=unicode(priority)
-        else:
-            self.priority=None
-        self.urls=[]
+
+        self.images = images or []
 
     def escape(self, s):
         """
@@ -88,7 +109,8 @@ class Url(object):
         s=s.replace('>', '&gt;')
         s=s.replace('<', '&lt;')
         return s
-    
+
+
 class Sitemap(object):
     """
     Class to manage a sitemap
@@ -106,28 +128,25 @@ class Sitemap(object):
              Default value for `priority`. See `Url.__init__()`.
         """
         
-        self.lastmod=lastmod
-        self.changefreq=changefreq
-        self.priority=priority
-        self.urls=[]
+        self.lastmod = lastmod
+        self.changefreq = changefreq
+        self.priority = priority
+        self.urls = []
 
-
-    def add(self, loc, lastmod=None, changefreq=None, priority=None, escape=True):
+    def add(self, loc, **kwargs):
         """
         Add a new URl. Parameters are the same as in  `Url.__init__()`.
         If ``lastmod``, ``changefreq`` or ``priority`` is ``None`` the default
         value is used (see `__init__()`)
         """
-        
-        if lastmod is None:
-            lastmod=self.lastmod
-        if changefreq is None:
-            changefreq=self.changefreq
-        if priority is None:
-            priority=self.priority
-        self.urls.append(Url(loc, lastmod, changefreq, priority, escape))
+        lastmod = kwargs.get('lastmod') or self.lastmod
+        changefreq = kwargs.get('changefreq') or self.changefreq
+        priority = kwargs.get('priority') or self.priority
+        escape = kwargs.get('escape') or True
+        images = kwargs.get('images') or []
 
-            
+        self.urls.append(Url(loc, lastmod, changefreq, priority, images, escape))
+
     def write(self, out):
         """
         Write sitemap to ``out``
@@ -145,27 +164,46 @@ class Sitemap(object):
                 return
         else:
             output=out
+
         output.write("<?xml version='1.0' encoding='UTF-8'?>\n"
         '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
         '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
         '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"\n'
         '        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
          
-
         for url in self.urls:
-            lastmod=changefreq=priority=''
+            lastmod = changefreq=priority=''
             if url.lastmod is not None:
-                lastmod='  <lastmod>%s</lastmod>\n'%url.lastmod
+                lastmod = '  <lastmod>%s</lastmod>\n' % url.lastmod
+
             if url.changefreq is not None:
-                changefreq='  <changefreq>%s</changefreq>\n'%url.changefreq
+                changefreq = '  <changefreq>%s</changefreq>\n' % url.changefreq
+
             if url.priority is not None:
-                priority='  <priority>%s</priority>\n'%url.priority
+                priority = '  <priority>%s</priority>\n' % url.priority
+
+            images = ''
+            for image in url.images:
+
+                if not image.get('loc'):
+                    raise ValueError("Image dicts must contain a value for the 'loc' key.")
+
+                images = '  <image:image>\n'
+                images += '    <image:loc>%s</image:loc>\n' % image['loc']
+
+                for opt in ('caption', 'geo_location', 'title', 'license'):
+                    if image.get(opt):
+                        images += '    <image:{opt}>{value}</image:{opt}>\n'.format(opt=opt, value=image.get(opt))
+                images += '  </image:image>\n'
+
             output.write(" <url>\n"
-                         "  <loc>%s</loc>\n%s%s%s"
-                         " </url>\n"%(url.loc.decode('utf-8'),
+                         "  <loc>%s</loc>\n%s%s%s%s"
+                         " </url>\n" % (url.loc.decode('utf-8'),
+                                        images.decode('utf-8'),
                                       lastmod.decode('utf-8'),
                                       changefreq.decode('utf-8'),
                                       priority.decode('utf-8')))
+
         output.write('</urlset>\n')
         if output is not out:
             output.close()
