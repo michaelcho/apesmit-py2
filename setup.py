@@ -33,7 +33,7 @@ from setuptools import setup, find_packages
 
 
 require_python(0x20600f0)
-__version__ = '0.02'
+__version__ = '0.03'
 
 
 setup(

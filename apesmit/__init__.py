@@ -169,7 +169,8 @@ class Sitemap(object):
         '<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
         '        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9\n'
         '        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"\n'
-        '        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
+        '        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n'
+        '        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n')
          
         for url in self.urls:
             lastmod = changefreq=priority=''
